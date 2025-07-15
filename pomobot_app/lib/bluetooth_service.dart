@@ -152,7 +152,8 @@ class PomodoroBluetoothService {
       connectedDevice = device;
       isConnected = true;
       
-      // 通知UI连接状态已更改
+      // 通知UI连接状态已更改 - 确保发送通知
+      print("Sending connection notification: true");
       _connectionController.add(true);
 
       // 定期获取状态和传感器数据
@@ -166,6 +167,7 @@ class PomodoroBluetoothService {
       print("Connection failed: $e");
       isConnected = false;
       // 确保连接失败时也发送状态
+      print("Sending connection notification: false");
       _connectionController.add(false);
       throw e;
     }
@@ -195,6 +197,7 @@ class PomodoroBluetoothService {
     sensorCharacteristic = null;
     
     // 通知UI连接状态已更改
+    print("Sending connection notification: false");
     _connectionController.add(false);
     
     print("Disconnected successfully");
@@ -204,6 +207,7 @@ class PomodoroBluetoothService {
     if (commandCharacteristic != null && isConnected) {
       try {
         await commandCharacteristic!.write(command.codeUnits);
+        print("Command sent: $command");
       } catch (e) {
         print("Command failed: $e");
       }
@@ -212,6 +216,7 @@ class PomodoroBluetoothService {
 
   void _onStatusReceived(List<int> value) {
     String statusString = String.fromCharCodes(value);
+    print("Status received: $statusString");
     Map<String, String> statusMap = {};
     List<String> pairs = statusString.split(',');
     for (String pair in pairs) {
@@ -225,6 +230,7 @@ class PomodoroBluetoothService {
 
   void _onSensorReceived(List<int> value) {
     String sensorString = String.fromCharCodes(value);
+    print("Sensor received: $sensorString");
     Map<String, String> sensorMap = {};
     List<String> pairs = sensorString.split(',');
     for (String pair in pairs) {

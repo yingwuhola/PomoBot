@@ -223,6 +223,21 @@ class _PomodoroPageState extends State<PomodoroPage>
                 ],
               ),
             ),
+            if (!isConnected)
+              GestureDetector(
+                onTap: _showConnectionDialog,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Connect',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -528,6 +543,7 @@ class _PomodoroPageState extends State<PomodoroPage>
                         onPressed: PomodoroBluetoothService().isScanning ? null : () async {
                           setDialogState(() {});
                           try {
+                            await PomodoroBluetoothService().requestPermissions();
                             await PomodoroBluetoothService().startScan();
                             // 每秒刷新UI来显示新发现的设备
                             Timer.periodic(Duration(seconds: 1), (timer) {

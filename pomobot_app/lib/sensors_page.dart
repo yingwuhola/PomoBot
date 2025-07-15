@@ -30,6 +30,24 @@ class _SensorsPageState extends State<SensorsPage> {
         });
       }
     });
+
+    // 监听连接状态变化
+    PomodoroBluetoothService().connectionStream.listen((connected) {
+      print("Connection status changed in SensorsPage: $connected");
+      if (mounted) {
+        setState(() {});
+        
+        if (!connected) {
+          // 断开连接时重置传感器数据
+          setState(() {
+            currentLux = 0.0;
+            currentTVOC = 0;
+            currentECO2 = 0;
+            typingIdleSeconds = 0;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -58,6 +76,9 @@ class _SensorsPageState extends State<SensorsPage> {
   }
 
   Widget _buildConnectionStatus() {
+    // 直接使用PomodoroBluetoothService的isConnected状态
+    bool isConnected = PomodoroBluetoothService().isConnected;
+    
     return Card(
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -66,7 +87,7 @@ class _SensorsPageState extends State<SensorsPage> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: PomodoroBluetoothService().isConnected 
+            colors: isConnected 
                 ? [Colors.green[400]!, Colors.green[600]!]
                 : [Colors.grey[400]!, Colors.grey[600]!],
           ),
@@ -74,7 +95,7 @@ class _SensorsPageState extends State<SensorsPage> {
         child: Row(
           children: [
             Icon(
-              PomodoroBluetoothService().isConnected ? Icons.sensors : Icons.sensors_off,
+              isConnected ? Icons.sensors : Icons.sensors_off,
               size: 40,
               color: Colors.white,
             ),
@@ -84,7 +105,7 @@ class _SensorsPageState extends State<SensorsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    PomodoroBluetoothService().isConnected ? 'Sensors Active' : 'Sensors Offline',
+                    isConnected ? 'Sensors Active' : 'Sensors Offline',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -92,7 +113,7 @@ class _SensorsPageState extends State<SensorsPage> {
                     ),
                   ),
                   Text(
-                    PomodoroBluetoothService().isConnected 
+                    isConnected 
                         ? 'Real-time data available' 
                         : 'Connect to robot first',
                     style: TextStyle(fontSize: 14, color: Colors.white70),
